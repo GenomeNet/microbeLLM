@@ -81,7 +81,7 @@
                 console.log("Received response:", response.data);
                 resultDiv.innerHTML = '<h2>Prediction Results:</h2>';
                 for (const [key, value] of Object.entries(response.data)) {
-                    resultDiv.innerHTML += `<p><strong>${key}:</strong> ${JSON.stringify(value)}</p>`;
+                    resultDiv.innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
                 }
             })
             .catch(function (error) {
