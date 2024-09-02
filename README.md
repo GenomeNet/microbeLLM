@@ -1,8 +1,22 @@
 # MicrobeLLM
 
-MicrobeLLM is a tool for generating LLM predictions for microbial phenotypes.
+MicrobeLLM is a versatile Python tool designed to leverage publicly available, general-purpose Large Language Models (LLMs) for predicting microbial phenotypes. This tool allows researchers to query diverse LLM providers, including OpenAI and those accessible through OpenRouter, without requiring any specific training on microbiological data.
+
+MicrobeLLM queries publicly available, general-purpose LLMs that have not been specifically trained on microbiological datasets. The tool's effectiveness stems from these models' broad knowledge base acquired through training on diverse text corpora. Users should be aware of potential limitations and validate results against experimental data when necessary.
+This tool is designed for research purposes and to explore the capabilities of LLMs in microbiology. It does not replace traditional experimental methods or specialized bioinformatics tools but offers a complementary approach to microbial phenotype prediction.
+
+## Key Features
+
+- *Flexible Query System*: Utilizes customizable templates for system and user messages, enabling adaptable query formulation across multiple LLM platforms.
+- *Gene List Integration*: Capable of incorporating gene lists into queries, allowing for predictions based on both taxonomic and genomic information.
+- *Multi-threading Support*: Implements parallel processing to optimize performance when dealing with extensive datasets.
+- *Robust Error Handling*: Includes automatic retry mechanisms (up to 4 attempts) to manage API failures or malformed responses, ensuring reliable operation.
+- *Standardized Output*: Processes and validates LLM responses, extracting predictions in a structured JSON format and saving results in CSV format with relevant metadata.
+- *Support for Multiple LLM Providers*: Compatible with OpenAI's API and OpenRouter, providing access to a wide range of state-of-the-art language models.
 
 ## Installation
+
+To install MicrobeLLM, follow these steps:
 
 ```
 git clone https://github.com/yourusername/microbeLLM.git
@@ -10,21 +24,31 @@ cd microbeLLM
 pip install -e .
 ```
 
+This will clone the repository and install MicrobeLLM in editable mode, allowing you to easily update the code as needed.
+
 ### Environment Variables
 
-Ensure the following environment variables are set for API access:
+MicrobeLLM requires API keys to access various LLM providers. Set up the following environment variables for API access. You can add these to your `~/.bashrc` or `~/.zshrc` file for permanent configuration:
 
 ```
-export OPENROUTER_API_KEY='your_api_key_here'
+export OPENROUTER_API_KEY='your_api_key_here' # If using OpenRouter
+export OPENAI_API_KEY='your_openai_api_key_here'  # If using only OpenAI models through OpenAI API
 ```
+
+Make sure to replace 'your_api_key_here' with your actual API keys.
 
 ## Usage
 
+MicrobeLLM offers two main modes of operation: *predicting phenotypes* and assessing *knowledge groups* for species.
+
 ### Prediction of phenotypes
 
-### Prediction of knowlege groups
+MicrobeLLM can predict various microbial phenotypes based on species names or gene content. Here are some example usage scenarios:
 
-Using a list with one binomial name per line as input file such as in `data/binomial_names.csv` for testing:
+
+To predict phenotypes for multiple species at once:
+
+#### 'Batch' Prediction from a List
 
 ```
 microbeLLM by_list \
@@ -35,7 +59,11 @@ microbeLLM by_list \
     --output example_output/predictions.csv
 ```
 
-multiple samples and/or multiple models are supported:
+This command processes a list of binomial names from data/binomial_names.csv and saves the predictions to example_output/predictions.csv.
+
+#### Using Multiple Models and Templates
+
+MicrobeLLM supports using multiple models and templates in a single run:
 
 ```
 microbeLLM by_list \
@@ -46,7 +74,11 @@ microbeLLM by_list \
     --output example_output/predictions_mult_templates.csv
 ```
 
-For single predictions of a particular binomial name such as *Escherichia coli*, use the `--binomial_name` flag:
+This approach allows for comparing predictions across different models and query formulations.
+
+#### Single Species Prediction
+
+For predicting phenotypes of a single species:
 
 ```
 microbeLLM by_name \
@@ -57,7 +89,7 @@ microbeLLM by_name \
     --output example_output/single_predictions.csv
 ```
 
-Which produces
+This command will output predictions for Escherichia coli using two different models. The output will look similar to:
 
 ```
 Prediction Results:
@@ -82,3 +114,12 @@ hemolysis: non-hemolytic
 cell_shape: bacillus
 ========================================
 ```
+
+### Prediction of Knowledge Groups
+
+MicrobeLLM can also assess the LLM's self-rated knowledge level about specific bacterial species. This feature helps in understanding the confidence level of the predictions. The usage is similar to phenotype prediction, but you'll need to use specific templates designed for knowledge group assessment.
+
+### Additional Notes
+
+- Ensure that your input files are properly formatted with one binomial name per line. And the column containing the binomial name is names "Binomial.name" or specified using `--column_name column_header`
+- System and user templates in the templates/ directory can be customized to refine the queries sent to the LLMs.
