@@ -37,7 +37,67 @@ export OPENAI_API_KEY='your_openai_api_key_here'  # If using only OpenAI models 
 
 Make sure to replace 'your_api_key_here' with your actual API keys.
 
-## Usage
+
+## MicrobeLLM Web Interface
+
+### Getting Started
+
+MicrobeLLM now includes a web interface for single-species predictions. 
+
+To start the development server, run:
+
+```
+microbellm web  
+```
+
+This will typically start a server running at `http://127.0.0.1:5000/`.
+
+
+### API Endpoints 
+
+#### POST Request
+Once the server is running you can run predictions using the web interface or via curl
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"binomial_name":"Escherichia coli"}' http://127.0.0.1:5000/
+```
+
+#### GET Request
+
+For easier testing in a browser:
+
+```
+curl "http://127.0.0.1:5000/predict?binomial_name=Escherichia%20coli"
+```
+
+And the corresponding URL for the browser would be:
+
+http://127.0.0.1:5000/predict?binomial_name=Escherichia%20coli
+
+#### Response Format
+
+The API returns a JSON object with predictions for various bacterial properties. For example:
+
+```
+{
+"Binomial name": "Escherichia coli",
+"aerophilicity": "['facultatively anaerobic']",
+"animal_pathogenicity": "TRUE",
+"biofilm_formation": "TRUE",
+"biosafety_level": "biosafety level 2",
+"cell_shape": "bacillus",
+"extreme_environment_tolerance": "FALSE",
+"gram_staining": "gram stain negative",
+"health_association": "TRUE",
+"hemolysis": "non-hemolytic",
+"host_association": "TRUE",
+"motility": "TRUE",
+"plant_pathogenicity": "FALSE",
+"spore_formation": "FALSE"
+}
+```
+
+## Usage of the command line tool
 
 MicrobeLLM offers two main modes of operation: *predicting phenotypes* and assessing *knowledge groups* for species.
 
@@ -114,17 +174,6 @@ hemolysis: non-hemolytic
 cell_shape: bacillus
 ========================================
 ```
-#### Web Interface
-
-MicrobeLLM now includes a web interface for single-species predictions. 
-
-To start the web server, use the following command:
-
-```
-microbellm web  
-```
-
-This will start a development server, typically running at `http://127.0.0.1:5000/`.
 
 ### Prediction of Knowledge Groups
 
