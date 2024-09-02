@@ -24,26 +24,21 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         gene_list (list, optional): List of genes to include in the query. Defaults to None.
         model_host (str, optional): The model host to use for the query. Defaults to 'openrouter'.
         pbar (tqdm, optional): Progress bar object for updating progress.
-        by_name_mode (bool, optional): Whether the function is being called in by_name mode. Defaults to False.
+        max_retries (int): Maximum number of retries for API calls.
+        by_name_mode (bool): Whether the function is being called in by_name mode.
 
     Returns:
         list: The prediction result.
     """
     name_parts = binomial_name.split()
     if len(name_parts) != 2:
-        # Ensure the binomial name consists of exactly two words (genus and species)
+        print(Fore.RED + "Error: The binomial name must consist of exactly two words (genus and species)." + Style.RESET_ALL)
         return None
-
-    original_gene_list = gene_list  # Save the original gene list
-
-    # Update the progress bar with the current binomial name on the right
-    if pbar:
-        pbar.set_postfix_str(f"Processing: {binomial_name}")
 
     system_message = system_message_template
     user_message = user_message_template.replace('{binomial_name}', binomial_name)
 
-    if original_gene_list:
+    if gene_list:
         gene_list_str = ', '.join(gene_list)
         user_message = user_message.replace('{gene_list}', gene_list_str)
 
@@ -54,7 +49,6 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
 
     retry_count = 0
     while retry_count < max_retries:
-        # Query the appropriate API based on the model_host
         if model_host == 'openrouter':
             response_json = query_openrouter_api(messages, model, temperature)
         elif model_host == 'openai':
@@ -65,14 +59,12 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         valid_json = extract_and_validate_json(response_json)
 
         if valid_json is not None:
-            # Calculate the number of genes
             num_genes = len(gene_list) if gene_list else 0
-
             prediction = {'Binomial name': binomial_name, 'num_genes': num_genes, **valid_json}
             write_prediction(output_file, prediction, model, system_template_path)
             
             if by_name_mode:
-                pretty_print_prediction(prediction)
+                pretty_print_prediction(prediction, model)
             
             return [prediction]
         else:
@@ -80,11 +72,6 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
             retry_count += 1
 
     print(Fore.RED + f"\nFailed to extract valid JSON for {binomial_name} after {max_retries} attempts." + Style.RESET_ALL)
-    
-    # Update the progress bar even if we failed
-    # if pbar:
-    #     pbar.update(1)
-    
     return None
 
 def main():

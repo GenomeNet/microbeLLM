@@ -239,15 +239,18 @@ def summarize_predictions(predictions):
     return results, disagreements
 
 
-def pretty_print_prediction(prediction):
+def pretty_print_prediction(prediction, model):
     """
-    Pretty prints a prediction dictionary to the console.
+    Pretty prints a prediction dictionary to the console, including the model used.
     
     Args:
         prediction (dict): The prediction dictionary to print.
+        model (str): The model used for the prediction.
     """
     print("\nPrediction Results:")
     print("=" * 40)
+    print(f"Model used: {model}")
+    print("-" * 40)
     for key, value in prediction.items():
         if key not in ['Model Used', 'Query Template', 'Date']:
             if isinstance(value, (list, dict)):
