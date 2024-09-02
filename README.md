@@ -39,6 +39,31 @@ microbeLLM by_name \
     --model "openai/chatgpt-4o-latest" \
     --system_template templates/system/template1.txt \
     --user_template templates/user/template1.txt \
-    --model_host openrouter \
     --output example_output/single_predictions.csv
+```
+
+Which produces
+
+```
+Prediction Results:
+========================================
+Binomial name: Escherichia coli
+num_genes: 0
+gram_staining: gram stain negative
+motility: TRUE
+aerophilicity:
+[
+  "facultatively anaerobic"
+]
+extreme_environment_tolerance: FALSE
+biofilm_formation: TRUE
+animal_pathogenicity: TRUE
+biosafety_level: biosafety level 2
+health_association: TRUE
+host_association: TRUE
+plant_pathogenicity: FALSE
+spore_formation: FALSE
+hemolysis: non-hemolytic
+cell_shape: bacillus
+========================================
 ```
