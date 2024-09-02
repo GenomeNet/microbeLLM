@@ -10,6 +10,7 @@ setup(
         "tqdm",
         "colorama",
         "openai",
+        "flask"
     ],
     entry_points={
         "console_scripts": [
@@ -19,7 +20,7 @@ setup(
         ],
     },
     package_data={
-        "microbellm": ["*.py", "*.txt"],  # Include all .py and .txt files
+        "microbellm": ["*.py", "*.txt", "templates/*.html"],  # Include all .py and .txt files
     },
     include_package_data=True,
 )

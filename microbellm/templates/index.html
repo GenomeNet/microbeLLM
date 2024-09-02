@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicrobeLLM Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #predictionForm {
+            margin-bottom: 20px;
+        }
+        #binomial_name {
+            width: 300px;
+            padding: 5px;
+        }
+        #submitButton {
+            padding: 5px 10px;
+        }
+        #loading {
+            display: none;
+            margin-top: 10px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>MicrobeLLM Prediction</h1>
+    <form id="predictionForm">
+        <label for="binomial_name">Enter Binomial Name:</label>
+        <input type="text" id="binomial_name" name="binomial_name" required>
+        <button type="submit" id="submitButton">Get Prediction</button>
+    </form>
+    <div id="loading">
+        <div class="spinner"></div>
+        <span>Generating prediction...</span>
+    </div>
+    <div id="result"></div>
+    <div id="error" style="color: red;"></div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const submitButton = document.getElementById('submitButton');
+        const loadingDiv = document.getElementById('loading');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const binomialName = document.getElementById('binomial_name').value;
+            console.log("Submitting request for:", binomialName);
+            
+            // Disable button and show loading indicator
+            submitButton.disabled = true;
+            loadingDiv.style.display = 'block';
+            resultDiv.innerHTML = '';
+            errorDiv.innerHTML = '';
+            
+            axios.post('/', {
+                binomial_name: binomialName
+            })
+            .then(function (response) {
+                console.log("Received response:", response.data);
+                resultDiv.innerHTML = '<h2>Prediction Results:</h2>';
+                for (const [key, value] of Object.entries(response.data)) {
+                    resultDiv.innerHTML += `<p><strong>${key}:</strong> ${JSON.stringify(value)}</p>`;
+                }
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+                let errorMessage = 'Error: Failed to generate prediction';
+                if (error.response) {
+                    console.error('Response data:', error.response.data);
+                    console.error('Response status:', error.response.status);
+                    errorMessage = error.response.data.error || errorMessage;
+                } else if (error.request) {
+                    console.error('No response received');
+                    errorMessage = 'No response received from server';
+                } else {
+                    console.error('Error message:', error.message);
+                    errorMessage = error.message;
+                }
+                errorDiv.innerHTML = `<p>${errorMessage}</p>`;
+            })
+            .finally(function () {
+                // Re-enable button and hide loading indicator
+                submitButton.disabled = false;
+                loadingDiv.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

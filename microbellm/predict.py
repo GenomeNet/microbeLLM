@@ -66,12 +66,17 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
             if by_name_mode:
                 pretty_print_prediction(prediction, model)
             
+            if pbar:
+                pbar.update(1)
+            
             return [prediction]
         else:
             print(Fore.YELLOW + f"\nFailed to extract valid JSON for {binomial_name}. Retrying... (Attempt {retry_count + 1}/{max_retries})" + Style.RESET_ALL)
             retry_count += 1
 
     print(Fore.RED + f"\nFailed to extract valid JSON for {binomial_name} after {max_retries} attempts." + Style.RESET_ALL)
+    if pbar:
+        pbar.update(1)
     return None
 
 def main():

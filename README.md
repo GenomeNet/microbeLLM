@@ -83,7 +83,7 @@ For predicting phenotypes of a single species:
 ```
 microbeLLM by_name \
     --binomial_name "Escherichia coli" \
-    --model "openai/chatgpt-4o-latest" "meta-llama/llama-3-8b-instruct"\
+    --model "openai/chatgpt-4o-latest" \
     --system_template templates/system/template1.txt \
     --user_template templates/user/template1.txt \
     --output example_output/single_predictions.csv
@@ -114,6 +114,17 @@ hemolysis: non-hemolytic
 cell_shape: bacillus
 ========================================
 ```
+#### Web Interface
+
+MicrobeLLM now includes a web interface for single-species predictions. 
+
+To start the web server, use the following command:
+
+```
+microbellm web  
+```
+
+This will start a development server, typically running at `http://127.0.0.1:5000/`.
 
 ### Prediction of Knowledge Groups
 

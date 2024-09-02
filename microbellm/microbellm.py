@@ -65,10 +65,16 @@ def main():
     by_name_parser.add_argument("--output", type=str, required=True, help="Output file path to save predictions")
     by_name_parser.add_argument("--binomial_name", type=str, required=True, help="Binomial name for prediction (e.g., 'Escherichia coli')")
 
+    # Subparser for the web interface command
+    web_parser = subparsers.add_parser("web", help="Starts the web interface for MicrobeLLM")
+    web_parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to run the web interface on")
+    web_parser.add_argument("--port", type=int, default=5000, help="Port to run the web interface on")
+
     args = parser.parse_args()
 
-    if not check_environment_variables(args.model_host):
-        return
+    
+    #if not check_environment_variables(args.model_host):
+    #    return
 
     if args.command == "by_list":
         # Validate template files
@@ -146,6 +152,10 @@ def main():
 
         for model in args.model:
             predict_binomial_name(args.binomial_name, model, system_message, user_message, args.output, args.system_template, 0, None, args.model_host, by_name_mode=True)
+
+    elif args.command == "web":
+        from microbellm.app import app
+        app.run(host=args.host, port=args.port)
 
 if __name__ == "__main__":
     print("Welcome to microbeLLM!")
