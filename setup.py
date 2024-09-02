@@ -13,7 +13,9 @@ setup(
     ],
     entry_points={
         "console_scripts": [
+            "MicrobeLLM=microbellm.microbellm:main",
             "microbeLLM=microbellm.microbellm:main",
+            "microbellm=microbellm.microbellm:main",
         ],
     },
     package_data={
