@@ -38,13 +38,12 @@ def main():
     """
     Main function to parse arguments and execute the prediction command.
     """
-    if not check_environment_variables(args.model_host):
-        return
+    
     parser = argparse.ArgumentParser(description="microbeLLM - Applying LLMs on microbe data")
     subparsers = parser.add_subparsers(dest="command")
 
     # Subparser for the predict command
-    predict_parser = subparsers.add_parser("by_binomial", help="Performs prediction based on binomial names (such as 'Escherichia coli')")
+    predict_parser = subparsers.add_parser("by_list", help="Performs prediction based on a input list containing binomial names (such as 'Escherichia coli')")
     predict_parser.add_argument("--model", type=str, nargs='+', default=["openai/chatgpt-4o-latest"], help="List of models to use for prediction")
     predict_parser.add_argument("--model_host", type=str, choices=['openrouter', 'openai'], default='openrouter', help="Select the model host (default: openrouter)")
     predict_parser.add_argument("--system_template", type=str, nargs='+', required=True, help='Text files for system message templates')
@@ -59,7 +58,10 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "by_binomial":
+    if not check_environment_variables(args.model_host):
+        return
+
+    if args.command == "by_list":
         # Validate template files
         template_files = args.system_template + args.user_template
         missing_files = [file for file in template_files if not os.path.exists(file)]

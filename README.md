@@ -21,7 +21,7 @@ export OPENROUTER_API_KEY='your_api_key_here'
 ## Usage
 
 ```
-microbeLLM by_binomial \
+microbeLLM by_list \
     --model openai/chatgpt-4o-latest \
     --system_template templates/system/template1.txt \
     --user_template templates/user/template1.txt \
