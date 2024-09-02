@@ -20,23 +20,38 @@ export OPENROUTER_API_KEY='your_api_key_here'
 
 ## Usage
 
-using a list with one binomial name per line as input file
+### Prediction of phenotypes
+
+### Prediction of knowlege groups
+
+Using a list with one binomial name per line as input file such as in `data/binomial_names.csv` for testing:
 
 ```
 microbeLLM by_list \
-    --model openai/chatgpt-4o-latest \
+    --model meta-llama/llama-3-8b-instruct \
     --system_template templates/system/template1.txt \
     --user_template templates/user/template1.txt \
     --input_file data/binomial_names.csv \
     --output example_output/predictions.csv
 ```
 
-using a single binomial name directly
+multiple samples and/or multiple models are supported:
+
+```
+microbeLLM by_list \
+    --model meta-llama/llama-3-8b-instruct openai/chatgpt-4o-latest \
+    --system_template templates/system/template1.txt templates/system/template2.txt \
+    --user_template templates/user/template1.txt templates/user/template2.txt \
+    --input_file data/binomial_names.csv \
+    --output example_output/predictions_mult_templates.csv
+```
+
+For single predictions of a particular binomial name such as *Escherichia coli*, use the `--binomial_name` flag:
 
 ```
 microbeLLM by_name \
     --binomial_name "Escherichia coli" \
-    --model "openai/chatgpt-4o-latest" \
+    --model "openai/chatgpt-4o-latest" "meta-llama/llama-3-8b-instruct"\
     --system_template templates/system/template1.txt \
     --user_template templates/user/template1.txt \
     --output example_output/single_predictions.csv
