@@ -9,13 +9,14 @@ from openai import OpenAI
 from datetime import datetime
 from string import Template
 
-def query_openai_api(messages, model):
+def query_openai_api(messages, model, temperature):
     """
     Queries the OpenAI API with the given messages and model.
     
     Args:
         messages (list): List of messages to send to the API.
         model (str): Model to use for the API call.
+        temperature (float): Temperature to use for the API call.
     
     Returns:
         str: The content of the API response.
@@ -43,7 +44,7 @@ def query_openai_api(messages, model):
             }
             for message in messages
         ],
-        temperature=0,
+        temperature=temperature,
         max_tokens=1024,
         top_p=0,
         frequency_penalty=0,
@@ -153,13 +154,14 @@ def write_prediction(output_file, prediction, model_used, template_path):
         # Write the prediction row to the CSV file
         writer.writerow(row)
 
-def query_openrouter_api(messages, model):
+def query_openrouter_api(messages, model, temperature):
     """
     Queries the OpenRouter API with the given messages and model.
     
     Args:
         messages (list): List of messages to send to the API.
         model (str): Model to use for the API call.
+        temperature (float): Temperature to use for the API call.
     
     Returns:
         str: The content of the API response.
@@ -178,7 +180,7 @@ def query_openrouter_api(messages, model):
             },
             model=model,
             messages=messages,
-            temperature=0,
+            temperature=temperature,
             max_tokens=2048,
             top_p=0
         )
