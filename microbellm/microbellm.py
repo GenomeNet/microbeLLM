@@ -56,6 +56,15 @@ def main():
     predict_parser.add_argument("--use_genes", action='store_true', default=False, help='Specify if gene names should be considered')
     predict_parser.add_argument("--gene_column", type=str, default='Gene_file', help='Column name for gene file paths')
 
+    # Subparser for the by_name command
+    by_name_parser = subparsers.add_parser("by_name", help="Performs prediction based on a single binomial name")
+    by_name_parser.add_argument("--model", type=str, nargs='+', default=["openai/chatgpt-4o-latest"], help="List of models to use for prediction")
+    by_name_parser.add_argument("--model_host", type=str, choices=['openrouter', 'openai'], default='openrouter', help="Select the model host (default: openrouter)")
+    by_name_parser.add_argument("--system_template", type=str, required=True, help='Text file for system message template')
+    by_name_parser.add_argument("--user_template", type=str, required=True, help='Text file for user message template')
+    by_name_parser.add_argument("--output", type=str, required=True, help="Output file path to save predictions")
+    by_name_parser.add_argument("--binomial_name", type=str, required=True, help="Binomial name for prediction (e.g., 'Escherichia coli')")
+
     args = parser.parse_args()
 
     if not check_environment_variables(args.model_host):
@@ -114,6 +123,29 @@ def main():
                 # Wait for all futures to complete
                 for future in as_completed(futures):
                     future.result()  # This will raise any exceptions that occurred during execution
+
+    elif args.command == "by_name":
+        # Validate template files
+        template_files = [args.system_template, args.user_template]
+        missing_files = [file for file in template_files if not os.path.exists(file)]
+        if missing_files:
+            print("Error: The following template files are missing:")
+            for file in missing_files:
+                print(f"- {file}")
+            print("Please ensure all specified template files exist before running the script.")
+            return
+
+        # Check if the output file already exists
+        if os.path.exists(args.output):
+            print(f"Warning: The output file '{args.output}' already exists.")
+            print("New predictions will be added to this file without overwriting existing content.")
+            input("Press Enter to continue or Ctrl+C to abort...")
+
+        system_message = read_template_from_file(args.system_template)
+        user_message = read_template_from_file(args.user_template)
+
+        for model in args.model:
+            predict_binomial_name(args.binomial_name, model, system_message, user_message, args.output, args.system_template, 0, None, args.model_host, by_name_mode=True)
 
 if __name__ == "__main__":
     print("Welcome to microbeLLM!")

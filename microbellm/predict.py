@@ -5,11 +5,11 @@ import argparse
 import json
 import pandas as pd
 from colorama import Fore, Style
-from microbellm.utils import query_openrouter_api, query_openai_api, extract_and_validate_json, write_prediction
+from microbellm.utils import query_openrouter_api, query_openai_api, extract_and_validate_json, write_prediction, pretty_print_prediction
 import sys
 from tqdm import tqdm
 
-def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, model_host='openrouter', pbar=None, max_retries=4):
+def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, model_host='openrouter', pbar=None, max_retries=4, by_name_mode=False):
     """
     Predicts the phenotype of a microbe given its binomial name using a specified model.
 
@@ -24,6 +24,7 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         gene_list (list, optional): List of genes to include in the query. Defaults to None.
         model_host (str, optional): The model host to use for the query. Defaults to 'openrouter'.
         pbar (tqdm, optional): Progress bar object for updating progress.
+        by_name_mode (bool, optional): Whether the function is being called in by_name mode. Defaults to False.
 
     Returns:
         list: The prediction result.
@@ -66,13 +67,12 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         if valid_json is not None:
             # Calculate the number of genes
             num_genes = len(gene_list) if gene_list else 0
-    
+
             prediction = {'Binomial name': binomial_name, 'num_genes': num_genes, **valid_json}
             write_prediction(output_file, prediction, model, system_template_path)
             
-            # Update the progress bar
-            if pbar:
-                pbar.update(1)
+            if by_name_mode:
+                pretty_print_prediction(prediction)
             
             return [prediction]
         else:
@@ -82,8 +82,8 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
     print(Fore.RED + f"\nFailed to extract valid JSON for {binomial_name} after {max_retries} attempts." + Style.RESET_ALL)
     
     # Update the progress bar even if we failed
-    if pbar:
-        pbar.update(1)
+    # if pbar:
+    #     pbar.update(1)
     
     return None
 

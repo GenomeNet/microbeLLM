@@ -9,6 +9,7 @@ from openai import OpenAI
 from datetime import datetime
 from string import Template
 
+
 def query_openai_api(messages, model, temperature):
     """
     Queries the OpenAI API with the given messages and model.
@@ -236,3 +237,22 @@ def summarize_predictions(predictions):
         results['Binomial name'] = predictions[0]['Binomial name']
 
     return results, disagreements
+
+
+def pretty_print_prediction(prediction):
+    """
+    Pretty prints a prediction dictionary to the console.
+    
+    Args:
+        prediction (dict): The prediction dictionary to print.
+    """
+    print("\nPrediction Results:")
+    print("=" * 40)
+    for key, value in prediction.items():
+        if key not in ['Model Used', 'Query Template', 'Date']:
+            if isinstance(value, (list, dict)):
+                print(f"{key}:")
+                print(json.dumps(value, indent=2))
+            else:
+                print(f"{key}: {value}")
+    print("=" * 40)
