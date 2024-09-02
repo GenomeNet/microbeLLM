@@ -23,13 +23,8 @@ def read_genes_from_file(file_path):
     with open(file_path, 'r') as file:
         return [line.strip() for line in file.readlines()]
 
-def check_environment_variables():
-    """
-    Check if required environment variables are set.
-    """
-    required_vars = [
-        'OPENROUTER_API_KEY'
-    ]
+def check_environment_variables(model_host):
+    required_vars = ['OPENROUTER_API_KEY'] if model_host == 'openrouter' else ['OPENAI_API_KEY', 'OPENAI_ORG_ID']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     if missing_vars:
         print("Error: The following required environment variables are not set:")
@@ -43,7 +38,7 @@ def main():
     """
     Main function to parse arguments and execute the prediction command.
     """
-    if not check_environment_variables():
+    if not check_environment_variables(args.model_host):
         return
     parser = argparse.ArgumentParser(description="microbeLLM - Applying LLMs on microbe data")
     subparsers = parser.add_subparsers(dest="command")
@@ -51,6 +46,7 @@ def main():
     # Subparser for the predict command
     predict_parser = subparsers.add_parser("by_binomial", help="Performs prediction based on binomial names (such as 'Escherichia coli')")
     predict_parser.add_argument("--model", type=str, nargs='+', default=["openai/chatgpt-4o-latest"], help="List of models to use for prediction")
+    predict_parser.add_argument("--model_host", type=str, choices=['openrouter', 'openai'], default='openrouter', help="Select the model host (default: openrouter)")
     predict_parser.add_argument("--system_template", type=str, nargs='+', required=True, help='Text files for system message templates')
     predict_parser.add_argument("--user_template", type=str, nargs='+', required=True, help='Text files for user message templates')
     predict_parser.add_argument("--input_file", type=str, required=True, help="Path to the input CSV file. Each row represents an instance for prediction, containing the binomial name and other relevant information.")
@@ -110,7 +106,7 @@ def main():
                             user_message = read_template_from_file(user_template)
                             
                             # Submit prediction task to the executor
-                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, pbar)
+                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, args.model_host, pbar)
                             futures.append(future)
                 
                 # Wait for all futures to complete

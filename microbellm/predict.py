@@ -5,11 +5,11 @@ import argparse
 import json
 import pandas as pd
 from colorama import Fore, Style
-from microbellm.utils import query_openrouter_api, extract_and_validate_json, write_prediction, query_openai_api
+from microbellm.utils import query_openrouter_api, query_openai_api, extract_and_validate_json, write_prediction
 import sys
 from tqdm import tqdm
 
-def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, pbar=None, max_retries=4):
+def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, model_host='openrouter', pbar=None, max_retries=4):
     """
     Predicts the phenotype of a microbe given its binomial name using a specified model.
 
@@ -22,6 +22,7 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         system_template_path (str): The path to the system template.
         temperature (float): The temperature for the prediction model.
         gene_list (list, optional): List of genes to include in the query. Defaults to None.
+        model_host (str, optional): The model host to use for the query. Defaults to 'openrouter'.
         pbar (tqdm, optional): Progress bar object for updating progress.
 
     Returns:
@@ -52,8 +53,13 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
 
     retry_count = 0
     while retry_count < max_retries:
-        # Query the appropriate API based on the model
-        response_json = query_openrouter_api(messages, model)
+        # Query the appropriate API based on the model_host
+        if model_host == 'openrouter':
+            response_json = query_openrouter_api(messages, model, temperature)
+        elif model_host == 'openai':
+            response_json = query_openai_api(messages, model, temperature)
+        else:
+            raise ValueError(f"Invalid model_host: {model_host}")
 
         valid_json = extract_and_validate_json(response_json)
 
@@ -92,6 +98,7 @@ def main():
     parser.add_argument('--is_file', action='store_true', help='Indicate if the binomial_name argument points to a file')
     parser.add_argument('--use_genes', action='store_true', help='Indicate if gene list should be included in the query')
     parser.add_argument('--gene_list', type=str, nargs='+', help='List of genes to include in the query')
+    parser.add_argument('--model_host', type=str, choices=['openrouter', 'openai'], default='openrouter', help="Select the model host (default: openrouter)")
     args = parser.parse_args()
 
     if args.is_file:
@@ -103,7 +110,7 @@ def main():
                 gene_list = args.gene_list
             else:
                 gene_list = None
-            predict_binomial_name(name, None, None, None, args.output, None, None, gene_list)
+            predict_binomial_name(name, None, None, None, args.output, None, None, gene_list, args.model_host)
 
 if __name__ == "__main__":
     main()
