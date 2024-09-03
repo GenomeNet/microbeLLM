@@ -10,7 +10,7 @@ from datetime import datetime
 from string import Template
 
 
-def query_openai_api(messages, model, temperature):
+def query_openai_api(messages, model, temperature, verbose=False):
     """
     Queries the OpenAI API with the given messages and model.
     
@@ -18,10 +18,15 @@ def query_openai_api(messages, model, temperature):
         messages (list): List of messages to send to the API.
         model (str): Model to use for the API call.
         temperature (float): Temperature to use for the API call.
+        verbose (bool): Whether to print verbose output.
     
     Returns:
         str: The content of the API response.
     """
+    if verbose:
+        print("Raw query to OpenAI API:")
+        print(json.dumps(messages, indent=2))
+
     #print("Using OpenAI API")
     client = OpenAI(
         organization=os.getenv("OPENAI_ORG_ID"),
@@ -51,6 +56,10 @@ def query_openai_api(messages, model, temperature):
         frequency_penalty=0,
         presence_penalty=0
     )
+    
+    if verbose:
+        print("\nRaw response from OpenAI API:")
+        print(json.dumps(completion.dict(), indent=2))
     
     return completion.choices[0].message.content
 
@@ -155,7 +164,7 @@ def write_prediction(output_file, prediction, model_used, template_path):
         # Write the prediction row to the CSV file
         writer.writerow(row)
 
-def query_openrouter_api(messages, model, temperature):
+def query_openrouter_api(messages, model, temperature, verbose=False):
     """
     Queries the OpenRouter API with the given messages and model.
     
@@ -163,10 +172,15 @@ def query_openrouter_api(messages, model, temperature):
         messages (list): List of messages to send to the API.
         model (str): Model to use for the API call.
         temperature (float): Temperature to use for the API call.
+        verbose (bool): Whether to print verbose output.
     
     Returns:
         str: The content of the API response.
     """
+    if verbose:
+        print("Raw query to OpenRouter API:")
+        print(json.dumps(messages, indent=2))
+
     #print("Using OpenRouter API")
     try:
         client = OpenAI(
@@ -186,8 +200,9 @@ def query_openrouter_api(messages, model, temperature):
             top_p=0
         )
         result = completion.choices[0].message.content
-        #print("API call successful, result obtained.")
-        #print(result)
+        if verbose:
+            print("\nRaw response from OpenRouter API:")
+            print(json.dumps(completion.dict(), indent=2))
         return result
     except Exception as e:
         #print(f"Error during API call: {e}")

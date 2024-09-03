@@ -9,7 +9,7 @@ from microbellm.utils import query_openrouter_api, query_openai_api, extract_and
 import sys
 from tqdm import tqdm
 
-def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, model_host='openrouter', pbar=None, max_retries=4, by_name_mode=False):
+def predict_binomial_name(binomial_name, model, system_message_template, user_message_template, output_file, system_template_path, temperature, gene_list=None, model_host='openrouter', pbar=None, max_retries=4, by_name_mode=False, verbose=False):
     """
     Predicts the phenotype of a microbe given its binomial name using a specified model.
 
@@ -26,6 +26,7 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
         pbar (tqdm, optional): Progress bar object for updating progress.
         max_retries (int): Maximum number of retries for API calls.
         by_name_mode (bool): Whether the function is being called in by_name mode.
+        verbose (bool): Whether to print verbose output.
 
     Returns:
         list: The prediction result.
@@ -50,9 +51,9 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
     retry_count = 0
     while retry_count < max_retries:
         if model_host == 'openrouter':
-            response_json = query_openrouter_api(messages, model, temperature)
+            response_json = query_openrouter_api(messages, model, temperature, verbose=verbose)
         elif model_host == 'openai':
-            response_json = query_openai_api(messages, model, temperature)
+            response_json = query_openai_api(messages, model, temperature, verbose=verbose)
         else:
             raise ValueError(f"Invalid model_host: {model_host}")
 
@@ -65,6 +66,10 @@ def predict_binomial_name(binomial_name, model, system_message_template, user_me
             
             if by_name_mode:
                 pretty_print_prediction(prediction, model)
+            
+            if verbose:
+                print("\nExtracted and validated JSON:")
+                print(json.dumps(valid_json, indent=2))
             
             if pbar:
                 pbar.update(1)

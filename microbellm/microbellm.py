@@ -55,6 +55,7 @@ def main():
     predict_parser.add_argument("--temperature", type=float, default=0, help='Temperature for the prediction model')
     predict_parser.add_argument("--use_genes", action='store_true', default=False, help='Specify if gene names should be considered')
     predict_parser.add_argument("--gene_column", type=str, default='Gene_file', help='Column name for gene file paths')
+    predict_parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     # Subparser for the by_name command
     by_name_parser = subparsers.add_parser("by_name", help="Performs prediction based on a single binomial name")
@@ -64,6 +65,7 @@ def main():
     by_name_parser.add_argument("--user_template", type=str, required=True, help='Text file for user message template')
     by_name_parser.add_argument("--output", type=str, required=True, help="Output file path to save predictions")
     by_name_parser.add_argument("--binomial_name", type=str, required=True, help="Binomial name for prediction (e.g., 'Escherichia coli')")
+    by_name_parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     # Subparser for the web interface command
     web_parser = subparsers.add_parser("web", help="Starts the web interface for MicrobeLLM")
@@ -123,7 +125,7 @@ def main():
                             user_message = read_template_from_file(user_template)
                             
                             # Submit prediction task to the executor
-                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, args.model_host, pbar)
+                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, args.model_host, pbar, verbose=args.verbose)
                             futures.append(future)
                 
                 # Wait for all futures to complete
@@ -151,7 +153,7 @@ def main():
         user_message = read_template_from_file(args.user_template)
 
         for model in args.model:
-            predict_binomial_name(args.binomial_name, model, system_message, user_message, args.output, args.system_template, 0, None, args.model_host, by_name_mode=True)
+            predict_binomial_name(args.binomial_name, model, system_message, user_message, args.output, args.system_template, 0, None, args.model_host, by_name_mode=True, verbose=args.verbose)
 
     elif args.command == "web":
         from microbellm.app import app
