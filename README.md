@@ -13,6 +13,7 @@ This tool is designed for research purposes and to explore the capabilities of L
 - *Robust Error Handling*: Includes automatic retry mechanisms (up to 4 attempts) to manage API failures or malformed responses, ensuring reliable operation.
 - *Standardized Output*: Processes and validates LLM responses, extracting predictions in a structured JSON format and saving results in CSV format with relevant metadata.
 - *Support for Multiple LLM Providers*: Compatible with OpenAI's API and OpenRouter, providing access to a wide range of state-of-the-art language models.
+- *Support for OpenAI Batch output format*: Can generate JSONL files that can be uploaded to OpenAI for batch processing to save 50% API costs.
 
 ## Installation
 
@@ -135,6 +136,22 @@ microbeLLM by_list \
 ```
 
 This approach allows for comparing predictions across different models and query formulations.
+
+#### OpenAI-Batch output
+
+OpenAI limits that batches are only contain one model per JSONL file, so please not use more than one model. Also the `--model` paramter shpould be a model from OpenAI, see https://platform.openai.com/docs/models/gpt-4-turbo-and-gpt-4
+
+```
+microbeLLM by_list \
+    --model gpt-4o-mini \
+    --system_template templates/system/template1.txt \
+    --user_template templates/user/template1.txt \
+    --input_file data/binomial_names.csv \
+    --output example_output/example_batches.jsonl  \
+    --batchoutput
+```
+
+This batch can be uploaded via https://platform.openai.com/batches/ 
 
 #### Single Species Prediction
 

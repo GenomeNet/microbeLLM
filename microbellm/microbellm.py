@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import pandas as pd
 from tqdm import tqdm
-from microbellm.utils import read_template_from_file
+from microbellm.utils import read_template_from_file, write_batch_jsonl
 from microbellm.predict import predict_binomial_name
 
 def read_genes_from_file(file_path):
@@ -56,6 +56,8 @@ def main():
     predict_parser.add_argument("--use_genes", action='store_true', default=False, help='Specify if gene names should be considered')
     predict_parser.add_argument("--gene_column", type=str, default='Gene_file', help='Column name for gene file paths')
     predict_parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    predict_parser.add_argument("--batchoutput", action="store_true", help="Generate batch output file for OpenAI processing")
+
 
     # Subparser for the by_name command
     by_name_parser = subparsers.add_parser("by_name", help="Performs prediction based on a single binomial name")
@@ -74,7 +76,6 @@ def main():
 
     args = parser.parse_args()
 
-    
     #if not check_environment_variables(args.model_host):
     #    return
 
@@ -125,12 +126,15 @@ def main():
                             user_message = read_template_from_file(user_template)
                             
                             # Submit prediction task to the executor
-                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, args.model_host, pbar, verbose=args.verbose)
+                            future = executor.submit(predict_binomial_name, name, model, system_message, user_message, args.output, system_template, args.temperature, gene_list if args.use_genes else None, args.model_host, pbar, verbose=args.verbose, batch_output=args.batchoutput)
                             futures.append(future)
                 
                 # Wait for all futures to complete
                 for future in as_completed(futures):
                     future.result()  # This will raise any exceptions that occurred during execution
+
+        if args.batchoutput:
+            print(f"Batch output file '{args.output}' has been generated for OpenAI processing.")
 
     elif args.command == "by_name":
         # Validate template files

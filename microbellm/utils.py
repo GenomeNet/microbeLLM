@@ -274,3 +274,32 @@ def pretty_print_prediction(prediction, model):
             else:
                 print(f"{key}: {value}")
     print("=" * 40)
+
+def write_batch_jsonl(output_file, messages, model, custom_id):
+    """
+    Writes a single request to a .jsonl file for batch processing.
+    
+    Args:
+        output_file (str): Path to the output .jsonl file.
+        messages (list): List of message dictionaries.
+        model (str): Model to use for the API call.
+        custom_id (str): Unique identifier for the request.
+    """
+    request = {
+        "custom_id": custom_id,
+        "method": "POST",
+        "url": "/v1/chat/completions",
+        "body": {
+            "model": model,
+            "messages": messages,
+            "max_tokens": 1024,
+            "temperature": 0,
+            "top_p": 0,
+            "frequency_penalty": 0,
+            "presence_penalty": 0
+        }
+    }
+    
+    with open(output_file, 'a', encoding='utf-8') as f:
+        json.dump(request, f)
+        f.write('\n')
