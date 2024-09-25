@@ -1,5 +1,7 @@
 # MicrobeLLM
 
+[![DOI](https://zenodo.org/badge/851077612.svg)](https://zenodo.org/doi/10.5281/zenodo.13839818)
+
 MicrobeLLM is a versatile Python tool designed to leverage publicly available, general-purpose Large Language Models (LLMs) for predicting microbial phenotypes. This tool allows researchers to query diverse LLM providers, including OpenAI and those accessible through OpenRouter, without requiring any specific training on microbiological data.
 
 MicrobeLLM queries publicly available, general-purpose LLMs that have not been specifically trained on microbiological datasets. The tool's effectiveness stems from these models' broad knowledge base acquired through training on diverse text corpora. Users should be aware of potential limitations and validate results against experimental data when necessary.
